@@ -1,8 +1,8 @@
 streamlit
-gensim
+yake
+rake-nltk
+spacy
 nltk
 scikit-learn
-beautifulsoup4
-requests
+PyPDF2
 pandas
-yake
