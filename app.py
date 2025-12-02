@@ -2,7 +2,6 @@
 import streamlit as st
 import yake
 from rake_nltk import Rake
-
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import Counter
@@ -15,9 +14,6 @@ import pandas as pd
 # ---------------------------
 nltk.download("punkt")
 nltk.download("stopwords")
-
-# Load spaCy model (ensure installed: python -m spacy download en_core_web_sm)
-
 
 # ---------------------------
 # Extraction Functions
@@ -33,7 +29,6 @@ def rake_extract(text, top_n=15):
     phrases = r.get_ranked_phrases()
     return phrases[:top_n]
 
-
 def tfidf_extract(text, top_n=15):
     # simple TF-IDF on the single document: we split into sentences as "corpus"
     sentences = [s for s in text.split(".") if s.strip()]
@@ -47,21 +42,12 @@ def tfidf_extract(text, top_n=15):
     term_scores = sorted(zip(terms, scores), key=lambda x: x[1], reverse=True)
     return [t for t, s in term_scores[:top_n]]
 
-def rule_freq_extract(text, top_n=15):
-    # rule-based frequency after cleaning using spaCy tokenization
-    doc = nlp(text.lower())
-    tokens = [t.lemma_ for t in doc if t.is_alpha and not t.is_stop and len(t) > 2]
-    most = [w for w, c in Counter(tokens).most_common(top_n)]
-    return most
-
 def hybrid_extract(text, top_n=20):
     # combine many sources, score by occurrence and method-rank
     sources = []
     sources += yake_extract(text, top_n * 2)
     sources += rake_extract(text, top_n * 2)
-    sources += spacy_np_extract(text, top_n * 2)
     sources += tfidf_extract(text, top_n * 2)
-    sources += rule_freq_extract(text, top_n * 2)
     # scoring: earlier occurrences get slightly higher weight (rank-based)
     score = {}
     for src in sources:
@@ -317,4 +303,3 @@ with col2:
         )
             
     st.markdown("</div>", unsafe_allow_html=True)
-
