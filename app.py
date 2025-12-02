@@ -2,7 +2,7 @@
 import streamlit as st
 import yake
 from rake_nltk import Rake
-import spacy
+
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import Counter
@@ -17,20 +17,7 @@ nltk.download("punkt")
 nltk.download("stopwords")
 
 # Load spaCy model (ensure installed: python -m spacy download en_core_web_sm)
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    try:
-        # Fallback: try importing directly (sometimes works when linking fails)
-        import en_core_web_sm
-        nlp = en_core_web_sm.load()
-    except ImportError:
-        st.error("spaCy model 'en_core_web_sm' not found. Please run: python -m spacy download en_core_web_sm")
-        # Optional: Attempt to download automatically (use with caution in production)
-        # from spacy.cli import download
-        # download("en_core_web_sm")
-        # nlp = spacy.load("en_core_web_sm")
-        raise
+
 
 # ---------------------------
 # Extraction Functions
@@ -46,17 +33,6 @@ def rake_extract(text, top_n=15):
     phrases = r.get_ranked_phrases()
     return phrases[:top_n]
 
-def spacy_np_extract(text, top_n=15):
-    doc = nlp(text)
-    # collect noun chunks and lemmatize them for normalization
-    chunks = []
-    for chunk in doc.noun_chunks:
-        lemma = " ".join([token.lemma_ for token in chunk if not token.is_punct and not token.is_space])
-        if lemma:
-            chunks.append(lemma.lower())
-    # preserve order & uniqueness
-    unique = list(dict.fromkeys(chunks))
-    return unique[:top_n]
 
 def tfidf_extract(text, top_n=15):
     # simple TF-IDF on the single document: we split into sentences as "corpus"
@@ -341,3 +317,4 @@ with col2:
         )
             
     st.markdown("</div>", unsafe_allow_html=True)
+
