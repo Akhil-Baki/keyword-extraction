@@ -107,95 +107,228 @@ def extract_text_from_pdf(uploaded_file):
 # ---------------------------
 # Streamlit UI + Styling
 # ---------------------------
-st.set_page_config(page_title="Keyword Extractor (Stable)", layout="wide", page_icon="🔎")
+# ---------------------------
+# Streamlit UI + Styling
+# ---------------------------
+st.set_page_config(page_title="Keyword Extractor Pro", layout="wide", page_icon="✨")
 
+# Custom CSS for Premium Look
 st.markdown(
     """
     <style>
-    body { background: linear-gradient(135deg,#0f2027,#2c5364); color: #f7f7fb; }
-    .title { font-size:2.6rem; font-weight:800; text-align:center;
-             background: -webkit-linear-gradient(#fff,#d0c4ff);
-             -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom:8px;}
-    .subtitle { text-align:center; color:#dfe9f3; margin-bottom:22px;}
-    .glass { background: rgba(255,255,255,0.06); padding:22px; border-radius:14px; border:1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
-    .kw { display:inline-block; padding:8px 12px; margin:6px; border-radius:12px; background: rgba(255,255,255,0.06); }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    /* Main Background */
+    .stApp {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #f8fafc;
+    }
+
+    /* Title Styling */
+    .main-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        text-align: center;
+        background: linear-gradient(to right, #60a5fa, #c084fc, #f472b6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.05em;
+    }
+    
+    .subtitle {
+        text-align: center;
+        color: #94a3b8;
+        font-size: 1.1rem;
+        margin-bottom: 3rem;
+        font-weight: 400;
+    }
+
+    /* Glassmorphism Card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        margin-bottom: 2rem;
+    }
+
+    /* Keyword Tags */
+    .kw-tag {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        margin: 0.4rem;
+        border-radius: 12px;
+        background: rgba(99, 102, 241, 0.15);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        color: #e0e7ff;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .kw-tag:hover {
+        background: rgba(99, 102, 241, 0.25);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    }
+
+    /* Button Styling */
+    .stButton > button {
+        background: linear-gradient(to right, #4f46e5, #7c3aed);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .stButton > button:hover {
+        opacity: 0.9;
+        transform: scale(1.02);
+        box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+    }
+
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background-color: rgba(15, 23, 42, 0.95);
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Input Fields */
+    .stTextArea textarea {
+        background-color: rgba(30, 41, 59, 0.5) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        color: #f1f5f9 !important;
+    }
+    
+    .stTextArea textarea:focus {
+        border-color: #818cf8 !important;
+        box-shadow: 0 0 0 1px #818cf8 !important;
+    }
+    
+    /* Remove footer */
     footer { visibility: hidden; }
+    #MainMenu { visibility: hidden; }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-st.markdown("<div class='title'>🔎 Keyword Extraction — Stable Edition</div>", unsafe_allow_html=True)
-st.markdown("<div class='subtitle'>YAKE • RAKE • spaCy • TF–IDF • Rule-based frequency • Hybrid</div>", unsafe_allow_html=True)
+# Header
+st.markdown("<div class='main-title'>Keyword Extraction Pro</div>", unsafe_allow_html=True)
+st.markdown("<div class='subtitle'>Unlock insights with advanced NLP models</div>", unsafe_allow_html=True)
 
-col1, col2 = st.columns([2, 1])
+# Sidebar for Settings
+with st.sidebar:
+    st.markdown("### ⚙️ Configuration")
+    st.markdown("---")
+    
+    method = st.selectbox(
+        "Extraction Model",
+        ["Hybrid (Recommended)", "YAKE", "RAKE", "TF-IDF"],
+        help="Select the algorithm to extract keywords."
+    )
+    
+    num = st.slider("Keyword Limit", 5, 100, 15, help="Maximum number of keywords to extract.")
+    
+    st.markdown("---")
+    st.markdown("### 📥 Export Settings")
+    download_name = st.text_input("Filename", value="keywords_export")
+    
+    st.markdown("---")
+    st.info("💡 **Tip:** Hybrid mode combines multiple algorithms for the most robust results.")
+
+# Main Content
+col1, col2 = st.columns([1.5, 1])
 
 with col1:
-    st.markdown("<div class='glass'>", unsafe_allow_html=True)
-    uploaded = st.file_uploader("Upload a PDF (optional) or paste text below", type=["pdf", "txt", "md"])
-    text_input = st.text_area("Or paste / type your article/report here", height=300)
-
-    if uploaded is not None:
-        if uploaded.type == "application/pdf":
-            text_from_pdf = extract_text_from_pdf(uploaded)
-            if text_from_pdf.strip():
-                st.success("PDF successfully read. Text loaded into the editor.")
-                # prefill the text area only if empty to avoid overriding user's typed text
-                if not text_input.strip():
-                    text_input = text_from_pdf
+    st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
+    st.markdown("### 📄 Source Text")
+    
+    tab1, tab2 = st.tabs(["✍️ Paste Text", "📂 Upload File"])
+    
+    with tab1:
+        text_input = st.text_area("Enter your text here...", height=350, placeholder="Paste your article, report, or document content here to extract keywords...")
+    
+    with tab2:
+        uploaded = st.file_uploader("Upload PDF or Text file", type=["pdf", "txt", "md"])
+        if uploaded is not None:
+            if uploaded.type == "application/pdf":
+                with st.spinner("Reading PDF..."):
+                    text_from_pdf = extract_text_from_pdf(uploaded)
+                    if text_from_pdf.strip():
+                        st.success(f"✅ Loaded {len(text_from_pdf)} characters from PDF")
+                        if not text_input.strip():
+                            text_input = text_from_pdf
+                    else:
+                        st.error("Could not extract text. Please try another file.")
             else:
-                st.warning("Could not extract text from PDF. Please paste text manually.")
-        else:
-            # text file
-            bytes_data = uploaded.read()
-            try:
-                text_from_file = bytes_data.decode("utf-8")
-            except:
-                text_from_file = ""
-            if text_from_file:
-                if not text_input.strip():
-                    text_input = text_from_file
+                bytes_data = uploaded.read()
+                try:
+                    text_from_file = bytes_data.decode("utf-8")
+                    if not text_input.strip():
+                        text_input = text_from_file
+                except:
+                    st.error("Error reading file encoding.")
 
     st.markdown("</div>", unsafe_allow_html=True)
 
 with col2:
-    st.markdown("<div class='glass'>", unsafe_allow_html=True)
-    st.write("### Settings")
-    method = st.selectbox("Extraction method", ["Hybrid (recommended)", "YAKE", "RAKE", "spaCy Noun Phrases", "TF-IDF", "Rule Frequency"])
-    num = st.slider("Number of keywords", 5, 50, 20)
-    st.write("---")
-    st.write("Download results:")
-    download_name = st.text_input("CSV filename (without extension)", value="keywords")
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
+    st.markdown("### 🚀 Actions")
+    
+    if st.button("Extract Keywords", use_container_width=True):
+        doc_text = text_input.strip()
+        
+        if not doc_text:
+            st.warning("⚠️ Please provide some text to analyze.")
+        else:
+            with st.spinner(f"Running {method} extraction..."):
+                try:
+                    if method == "YAKE":
+                        kws = yake_extract(doc_text, top_n=num)
+                    elif method == "RAKE":
+                        kws = rake_extract(doc_text, top_n=num)
+                    elif method == "TF-IDF":
+                        kws = tfidf_extract(doc_text, top_n=num)
+                    else:  # Hybrid
+                        kws = hybrid_extract(doc_text, top_n=num)
+                    
+                    st.session_state['kws'] = kws
+                except Exception as e:
+                    st.error(f"An error occurred: {e}")
 
-st.write("")
-
-if st.button("🔍 Extract Keywords"):
-    doc_text = text_input.strip()
-    if not doc_text:
-        st.warning("Please paste text or upload a PDF.")
-    else:
-        with st.spinner("Extracting keywords..."):
-            if method == "YAKE":
-                kws = yake_extract(doc_text, top_n=num)
-            elif method == "RAKE":
-                kws = rake_extract(doc_text, top_n=num)
-            elif method == "spaCy Noun Phrases":
-                kws = spacy_np_extract(doc_text, top_n=num)
-            elif method == "TF-IDF":
-                kws = tfidf_extract(doc_text, top_n=num)
-            elif method == "Rule Frequency":
-                kws = rule_freq_extract(doc_text, top_n=num)
-            else:  # Hybrid
-                kws = hybrid_extract(doc_text, top_n=num)
-
-        # display
-        st.markdown("### 🎯 Extracted Keywords")
-        for k in kws:
-            st.markdown(f"<span class='kw'>{k}</span>", unsafe_allow_html=True)
-
-        # provide CSV download
-        df = pd.DataFrame({"keyword": kws})
+    # Display Results if available
+    if 'kws' in st.session_state and st.session_state['kws']:
+        st.markdown("---")
+        st.markdown("### 🎯 Results")
+        
+        # Display as pills/tags
+        tags_html = "".join([f"<span class='kw-tag'>{k}</span>" for k in st.session_state['kws']])
+        st.markdown(f"<div>{tags_html}</div>", unsafe_allow_html=True)
+        
+        st.markdown("---")
+        
+        # CSV Download
+        df = pd.DataFrame({"Keyword": st.session_state['kws']})
         csv = df.to_csv(index=False).encode("utf-8")
-        st.download_button(label="⬇️ Download CSV", data=csv, file_name=f"{download_name}.csv", mime="text/csv")
+        
+        st.download_button(
+            label="⬇️ Download CSV",
+            data=csv,
+            file_name=f"{download_name}.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
+            
+    st.markdown("</div>", unsafe_allow_html=True)
