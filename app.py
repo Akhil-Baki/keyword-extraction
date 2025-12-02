@@ -19,9 +19,18 @@ nltk.download("stopwords")
 # Load spaCy model (ensure installed: python -m spacy download en_core_web_sm)
 try:
     nlp = spacy.load("en_core_web_sm")
-except Exception:
-    st.error("spaCy model not found. Run: python -m spacy download en_core_web_sm")
-    raise
+except OSError:
+    try:
+        # Fallback: try importing directly (sometimes works when linking fails)
+        import en_core_web_sm
+        nlp = en_core_web_sm.load()
+    except ImportError:
+        st.error("spaCy model 'en_core_web_sm' not found. Please run: python -m spacy download en_core_web_sm")
+        # Optional: Attempt to download automatically (use with caution in production)
+        # from spacy.cli import download
+        # download("en_core_web_sm")
+        # nlp = spacy.load("en_core_web_sm")
+        raise
 
 # ---------------------------
 # Extraction Functions
